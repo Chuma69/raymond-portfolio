@@ -498,7 +498,23 @@
       });
     }
 
-    function setView(view) {
+    // ---- project case studies (placeholder pages) ----
+    var caseData = {
+      garage: { title: 'The Garage', meta: 'Founder · 2020', url: 'https://thegarage.ng' },
+      sevcp: { title: 'South East Venture Capital Program', meta: 'Programs · 2023', url: 'https://www.sedc.gov.ng/programs/sevcp' },
+      iorad: { title: 'iorad', meta: 'Operations · 2024', url: 'https://iorad.com' }
+    };
+
+    // ---- routing (real URLs via the History API) ----
+    var viewPaths = { home: '/', about: '/about', projects: '/projects', contact: '/contact' };
+
+    function pathFor(view, caseKey) {
+      if (view === 'case' && caseKey) return '/projects/' + caseKey;
+      return viewPaths[view] || '/';
+    }
+
+    // Show a view in the DOM (no URL change).
+    function showView(view) {
       if (!views[view]) return;
       Object.keys(views).forEach(function (k) {
         if (views[k]) views[k].hidden = k !== view;
@@ -512,14 +528,50 @@
         }
         showContactStep('form');
       }
-      updateNav(view);
+      updateNav(view === 'case' ? 'projects' : view); // case studies keep Projects active
       // re-trigger the entrance animation
       var el = views[view];
       el.style.animation = 'none';
-      // force reflow
-      void el.offsetWidth;
+      void el.offsetWidth; // force reflow
       el.style.animation = 'rc-rise 0.5s ease both';
-      if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Apply a view (+ optional case study), populating case content as needed.
+    function applyView(view, caseKey) {
+      if (view === 'case') {
+        var d = caseData[caseKey];
+        if (!d || !views.case) { view = 'projects'; caseKey = null; }
+        else {
+          document.getElementById('case-title').textContent = d.title;
+          document.getElementById('case-meta').textContent = d.meta;
+          document.getElementById('case-link').href = d.url;
+        }
+      }
+      showView(view);
+      return { view: view, caseKey: caseKey };
+    }
+
+    // Navigate from a user action: apply the view and push a new URL.
+    function navigate(view, caseKey) {
+      var r = applyView(view, caseKey);
+      var p = pathFor(r.view, r.caseKey);
+      try {
+        if (location.pathname !== p) history.pushState({ view: r.view, caseKey: r.caseKey }, '', p);
+      } catch (e) {}
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Resolve a URL path to a view (used on load and for back/forward).
+    function routeFromPath(path) {
+      path = (path || '/').replace(/\/+$/, '') || '/';
+      if (path === '/about') return applyView('about');
+      if (path === '/projects') return applyView('projects');
+      if (path === '/contact') return applyView('contact');
+      if (path.indexOf('/projects/') === 0) {
+        var key = path.slice('/projects/'.length);
+        return applyView(caseData[key] ? 'case' : 'projects', key);
+      }
+      return applyView('home');
     }
 
     // brief press feedback for links that don't lead anywhere yet
@@ -535,33 +587,23 @@
       var nav = link.getAttribute('data-nav');
       e.preventDefault();
       if (nav === 'stay') { pressFeedback(link); return; }
-      setView(nav);
+      navigate(nav);
     });
 
-    // ---- project case studies (placeholder pages) ----
-    var caseData = {
-      garage: { title: 'The Garage', meta: 'Founder · 2020', url: 'https://thegarage.ng' },
-      sevcp: { title: 'South East Venture Capital Program', meta: 'Programs · 2023', url: 'https://www.sedc.gov.ng/programs/sevcp' },
-      iorad: { title: 'iorad', meta: 'Operations · 2024', url: 'https://iorad.com' }
-    };
-    function openCase(key) {
-      var d = caseData[key];
-      if (!d || !views.case) return;
-      document.getElementById('case-title').textContent = d.title;
-      document.getElementById('case-meta').textContent = d.meta;
-      document.getElementById('case-link').href = d.url;
-      setView('case');
-      updateNav('projects'); // keep Projects highlighted while viewing a case study
-    }
     document.addEventListener('click', function (e) {
       var el = e.target.closest('[data-case]');
       if (!el) return;
       e.preventDefault();
-      openCase(el.getAttribute('data-case'));
+      navigate('case', el.getAttribute('data-case'));
     });
 
-    // reflect the initial view in the nav
-    updateNav('home');
+    window.addEventListener('popstate', function () {
+      routeFromPath(location.pathname);
+      window.scrollTo({ top: 0 });
+    });
+
+    // reflect the initial URL (supports deep links like /about, /projects/garage)
+    routeFromPath(location.pathname);
 
     // ---- theme toggle ----
     var themeToggle = document.getElementById('theme-toggle');

@@ -60,6 +60,12 @@ app.post('/api/subscribe', async (req, res) => {
 
 app.get('/api/health', (_req, res) => res.json(healthInfo()));
 
+// SPA fallback: serve index.html for any non-API GET route (so /about,
+// /projects, /contact, /projects/<slug> work on direct load / refresh).
+app.get(/^\/(?!api\/).*/, (_req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 app.listen(PORT, () => {
   console.log(`Portfolio running on http://localhost:${PORT}`);
   console.log(`SMTP: ${smtpConfigured ? 'configured' : 'NOT configured (requests will be logged to data/*.jsonl)'}`);
