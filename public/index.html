@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Raymond Chuma-Onwuoku</title>
+<meta name="description" content="Raymond Chuma-Onwuoku — operator, entrepreneur, and lifelong student building organizations, systems, and ideas that create lasting value.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #FBFAF6; }
+  ::selection { background: #1C1B18; color: #FBFAF6; }
+  a { color: inherit; text-decoration: none; }
+  @keyframes rc-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }
+  [hidden] { display: none !important; }
+
+  /* interaction / hover feedback */
+  a { transition: color 0.15s ease, opacity 0.15s ease; }
+
+  /* nav links: darken on hover, bold + dark when active */
+  #nav-links a { color: #6B6760; }
+  #nav-links a:hover { color: #1C1B18; }
+  #nav-links a.active { color: #1C1B18; font-weight: 600; }
+
+  /* brand + content + footer links: gentle fade on hover */
+  nav > a:hover,
+  main a:hover,
+  footer a:hover { opacity: 0.6; }
+
+  /* résumé request modal */
+  @keyframes rc-fade { from { opacity: 0; } to { opacity: 1; } }
+  .rc-backdrop { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(28, 27, 24, 0.32); animation: rc-fade 0.2s ease both; }
+  .rc-modal { position: relative; width: 100%; max-width: 440px; background: #FBFAF6; border: 1px solid #E6E2D8; border-radius: 14px; padding: 30px 30px 32px; box-shadow: 0 24px 60px -24px rgba(28, 27, 24, 0.35); animation: rc-rise 0.35s ease both; font-family: 'Instrument Sans', system-ui, sans-serif; }
+  .rc-modal h2 { font-size: 20px; font-weight: 600; color: #1C1B18; margin: 0 0 8px; }
+  .rc-modal-close { position: absolute; top: 14px; right: 14px; width: 30px; height: 30px; border: none; background: transparent; color: #A6A299; font-size: 22px; line-height: 1; cursor: pointer; border-radius: 8px; transition: color 0.15s ease, background 0.15s ease; }
+  .rc-modal-close:hover { color: #1C1B18; background: #EFEBE1; }
+  .rc-field { margin-bottom: 15px; }
+  .rc-field label { display: block; font-size: 13px; color: #6B6760; margin-bottom: 6px; }
+  .rc-input { width: 100%; font: inherit; font-size: 15px; color: #26251F; background: #FFFDF8; border: 1px solid #E0DCD1; border-radius: 8px; padding: 10px 12px; transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+  .rc-input::placeholder { color: #B7B2A6; }
+  .rc-input:focus { outline: none; border-color: #B7B2A6; box-shadow: 0 0 0 3px rgba(183, 178, 166, 0.2); }
+  textarea.rc-input { resize: vertical; min-height: 84px; line-height: 1.5; }
+  .rc-btn { display: inline-block; width: 100%; font: inherit; font-size: 15px; font-weight: 500; color: #FBFAF6; background: #1C1B18; border: none; border-radius: 8px; padding: 12px 18px; cursor: pointer; transition: opacity 0.15s ease; }
+  .rc-btn:hover { opacity: 0.88; }
+</style>
+</head>
+<body>
+
+<div style="min-height: 100vh; background: #FBFAF6; font-family: 'Instrument Sans', system-ui, sans-serif; padding: 64px 32px 110px;">
+  <div style="max-width: 720px; margin: 0 auto;">
+
+    <!-- nav -->
+    <nav style="display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 56px; gap: 24px; flex-wrap: wrap;">
+      <a href="#" data-nav="home" style="font-size: 17px; color: #1C1B18;">Raymond Chuma-Onwuoku</a>
+      <div id="nav-links" style="display: flex; gap: 20px; font-size: 15px; color: #6B6760; flex-wrap: wrap;">
+        <a href="#" data-nav="home">Home</a>
+        <a href="#" data-nav="about">About</a>
+        <a href="#" data-nav="stay">Projects</a>
+        <a href="#" data-resume>Résumé</a>
+        <a href="https://raymond.wtf" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 3px;">Blog <span style="font-size: 12px; color: #A6A299;">↗</span></a>
+        <a href="#" data-nav="stay">Contact</a>
+      </div>
+    </nav>
+
+    <!-- ============ HOME ============ -->
+    <main data-view="home" style="animation: rc-rise 0.5s ease both;">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 32px; font-size: 14px; color: #A6A299;">
+        <span style="width: 6px; height: 6px; border-radius: 50%; background: #B7B2A6; display: inline-block;"></span>
+        <span>Enugu, Nigeria</span>
+        <span style="color: #CDC8BC;">·</span>
+        <span id="enugu-time" style="color: #6B6760; font-variant-numeric: tabular-nums;"></span>
+      </div>
+      <div style="padding-bottom: 8px;">
+        <p style="font-size: 17px; line-height: 1.75; color: #26251F; margin: 0 0 26px; text-wrap: pretty;">I was born in Awka, Nigeria. I grew up in Obudu and now live in Enugu.</p>
+
+        <p style="font-size: 17px; line-height: 1.75; color: #26251F; margin: 0 0 26px; text-wrap: pretty;">I'm an operator, entrepreneur, and lifelong student interested in building organizations, systems, and ideas that create lasting value.</p>
+
+        <p style="font-size: 17px; line-height: 1.75; color: #26251F; margin: 0 0 26px; text-wrap: pretty;">I'm the founder of <a href="https://thegarage.ng" target="_blank" rel="noopener" style="text-decoration: underline; text-decoration-color: #C4C0B6; text-underline-offset: 3px;">The Garage</a>, a talent enablement company that has supported more than 7,000 students with the infrastructure, community, and opportunities they need to do meaningful work.</p>
+
+        <p style="font-size: 17px; line-height: 1.75; color: #26251F; margin: 0 0 26px; text-wrap: pretty;">I currently work at <a href="https://iorad.com" target="_blank" rel="noopener" style="text-decoration: underline; text-decoration-color: #C4C0B6; text-underline-offset: 3px;">iorad</a>, where I support content, marketing, and revenue operations. Over time, my work has expanded beyond marketing into operations, where I enjoy designing the systems, processes, and teams that help ambitious organizations execute effectively.</p>
+
+        <p style="font-size: 17px; line-height: 1.75; color: #1C1B18; margin: 0 0 26px; text-wrap: pretty;">The question that underpins much of my work is: <span style="font-style: italic;">How can we advance thought in a way that creates lasting value for society?</span></p>
+
+        <p style="font-size: 17px; line-height: 1.75; color: #26251F; margin: 0; text-wrap: pretty;">I don't think ideas matter simply because they're new. They matter when they help us better understand the world, solve meaningful problems, or create opportunities for others. <a href="#" data-nav="about" style="text-decoration: underline; text-decoration-color: #C4C0B6; text-underline-offset: 3px;">More about me →</a></p>
+      </div>
+
+      <!-- currently reading -->
+      <section style="margin-top: 56px; padding-top: 40px; border-top: 1px solid #EAE6DC;">
+        <h2 style="font-size: 15px; font-weight: 500; letter-spacing: 0.02em; color: #9A968D; margin: 0 0 20px;">Currently reading</h2>
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; justify-content: space-between; gap: 20px; align-items: baseline;">
+            <span style="font-size: 18px; color: #26251F;"><span style="font-style: italic;">The Timeless Way of Building</span> &nbsp;·&nbsp; Christopher Alexander</span>
+            <span style="font-size: 14px; color: #A6A299; white-space: nowrap;">Architecture</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; gap: 20px; align-items: baseline;">
+            <span style="font-size: 18px; color: #26251F;"><span style="font-style: italic;">Working in Public</span> &nbsp;·&nbsp; Nadia Eghbal</span>
+            <span style="font-size: 14px; color: #A6A299; white-space: nowrap;">Systems</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; gap: 20px; align-items: baseline;">
+            <span style="font-size: 18px; color: #26251F;"><span style="font-style: italic;">Thinking in Systems</span> &nbsp;·&nbsp; Donella Meadows</span>
+            <span style="font-size: 14px; color: #A6A299; white-space: nowrap;">Operations</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- projects -->
+      <section style="margin-top: 56px; padding-top: 40px; border-top: 1px solid #EAE6DC;">
+        <h2 style="font-size: 15px; font-weight: 500; letter-spacing: 0.02em; color: #9A968D; margin: 0 0 4px;">Projects</h2>
+        <div style="display: flex; flex-direction: column;">
+
+          <a href="#" data-nav="stay" style="display: block; padding: 26px 0; border-bottom: 1px solid #EAE6DC;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 16px;">
+              <span style="font-size: 21px; color: #1C1B18;">The Garage</span>
+              <span style="font-size: 14px; color: #A6A299; white-space: nowrap;">Founder · 2020</span>
+            </div>
+            <p style="font-size: 16px; line-height: 1.7; color: #6B6760; margin: 8px 0 0; max-width: 62ch; text-wrap: pretty;">A talent enablement company built to close the gap between capable people and meaningful work. To date, The Garage has supported more than 7,000 students with the infrastructure, community, and opportunities they need to build careers that matter.</p>
+            <span style="display: inline-block; margin-top: 12px; font-size: 15px; color: #1C1B18; text-decoration: underline; text-decoration-color: #C4C0B6; text-underline-offset: 3px;">Read the full story →</span>
+          </a>
+
+          <a href="#" data-nav="stay" style="display: block; padding: 26px 0; border-bottom: 1px solid #EAE6DC;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 16px;">
+              <span style="font-size: 21px; color: #1C1B18;">South East Venture Capital Program</span>
+              <span style="font-size: 14px; color: #A6A299; white-space: nowrap;">Programs · 2023</span>
+            </div>
+            <p style="font-size: 16px; line-height: 1.7; color: #6B6760; margin: 8px 0 0; max-width: 62ch; text-wrap: pretty;">Designing and delivering the initiatives that identify, support, and accelerate promising ventures across the South East. My work spans program design, founder selection, and the operating systems that help early ventures move from idea to traction.</p>
+            <span style="display: inline-block; margin-top: 12px; font-size: 15px; color: #1C1B18; text-decoration: underline; text-decoration-color: #C4C0B6; text-underline-offset: 3px;">Read the full story →</span>
+          </a>
+
+          <a href="#" data-nav="stay" style="display: block; padding: 26px 0; border-bottom: 1px solid #EAE6DC;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 16px;">
+              <span style="font-size: 21px; color: #1C1B18;">iorad</span>
+              <span style="font-size: 14px; color: #A6A299; white-space: nowrap;">Operations · 2024</span>
+            </div>
+            <p style="font-size: 16px; line-height: 1.7; color: #6B6760; margin: 8px 0 0; max-width: 62ch; text-wrap: pretty;">Building repeatable content, marketing, and revenue operations for a product-led company — the systems, processes, and cross-functional workflows that let a lean team execute with the consistency of a much larger one.</p>
+            <span style="display: inline-block; margin-top: 12px; font-size: 15px; color: #1C1B18; text-decoration: underline; text-decoration-color: #C4C0B6; text-underline-offset: 3px;">Read the full story →</span>
+          </a>
+
+        </div>
+      </section>
+
+      <!-- writing -->
+      <section style="margin-top: 56px; padding-top: 40px; border-top: 1px solid #EAE6DC;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+          <h2 style="font-size: 15px; font-weight: 500; letter-spacing: 0.02em; color: #9A968D; margin: 0;">Writing</h2>
+          <a href="https://raymond.wtf" target="_blank" rel="noopener" style="font-size: 14px; color: #6B6760;">All posts ↗</a>
+        </div>
+        <div style="display: flex; flex-direction: column;">
+          <a href="#" data-nav="stay" style="display: flex; justify-content: space-between; gap: 20px; padding: 16px 0; border-bottom: 1px solid #EAE6DC; align-items: baseline;">
+            <span style="font-size: 18px; color: #1C1B18;">How can we advance thought that lasts?</span>
+            <span style="font-size: 14px; color: #A6A299; white-space: nowrap;">Jun 2026</span>
+          </a>
+          <a href="#" data-nav="stay" style="display: flex; justify-content: space-between; gap: 20px; padding: 16px 0; border-bottom: 1px solid #EAE6DC; align-items: baseline;">
+            <span style="font-size: 18px; color: #1C1B18;">Operations is a creative discipline</span>
+            <span style="font-size: 14px; color: #A6A299; white-space: nowrap;">Apr 2026</span>
+          </a>
+          <a href="#" data-nav="stay" style="display: flex; justify-content: space-between; gap: 20px; padding: 16px 0; border-bottom: 1px solid #EAE6DC; align-items: baseline;">
+            <span style="font-size: 18px; color: #1C1B18;">What a decade of debate taught me about thinking</span>
+            <span style="font-size: 14px; color: #A6A299; white-space: nowrap;">Feb 2026</span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <!-- ============ ABOUT ============ -->
+    <main data-view="about" hidden style="animation: rc-rise 0.5s ease both;">
+      <div style="margin-bottom: 52px;">
+        <div style="font-size: 17px; color: #1C1B18; margin-bottom: 2px;">About</div>
+        <div style="font-size: 17px; color: #A6A299;">Updated Jul 9, 2026</div>
+      </div>
+
+      <p style="font-size: 17px; line-height: 1.75; color: #26251F; margin: 0 0 26px; text-wrap: pretty;">I was born in Awka, Nigeria. I grew up in Obudu and now live in Enugu.</p>
+
+      <p style="font-size: 17px; line-height: 1.75; color: #26251F; margin: 0 0 26px; text-wrap: pretty;">I'm an operator, entrepreneur, and lifelong student interested in building organizations, systems, and ideas that create lasting value.</p>
+
+      <p style="font-size: 17px; line-height: 1.75; color: #26251F; margin: 0 0 26px; text-wrap: pretty;">I'm the founder of <a href="https://thegarage.ng" target="_blank" rel="noopener" style="text-decoration: underline; text-decoration-color: #C4C0B6; text-underline-offset: 3px;">The Garage</a>, a talent enablement company that has supported more than 7,000 students with the infrastructure, community, and opportunities they need to do meaningful work.</p>
+
+      <p style="font-size: 17px; line-height: 1.75; color: #26251F; margin: 0 0 26px; text-wrap: pretty;">I currently work at <a href="https://iorad.com" target="_blank" rel="noopener" style="text-decoration: underline; text-decoration-color: #C4C0B6; text-underline-offset: 3px;">iorad</a>, where I support content, marketing, and revenue operations. Previously, I've led marketing efforts at <a href="#" data-nav="stay" style="text-decoration: underline; text-decoration-color: #C4C0B6; text-underline-offset: 3px;">Unnhousing</a>, <a href="https://blockmec.net/" target="_blank" rel="noopener" style="text-decoration: underline; text-decoration-color: #C4C0B6; text-underline-offset: 3px;">Blockmec Technologies</a>, and then&nbsp;<a href="https://www.horuslabs.co/" target="_blank" rel="noopener" style="text-decoration: underline; text-decoration-color: #C4C0B6; text-underline-offset: 3px;">Horus Labs</a>. Over time, my work has expanded beyond marketing into operations, where I enjoy designing the systems, processes, and teams that help ambitious organizations execute effectively.</p>
+
+      <p style="font-size: 17px; line-height: 1.75; color: #26251F; margin: 0 0 26px; text-wrap: pretty;">I also work with the <a href="#" data-nav="stay" style="text-decoration: underline; text-decoration-color: #C4C0B6; text-underline-offset: 3px;">South East Venture Capital Program</a>, where I help design and deliver initiatives that identify, support, and accelerate promising ventures across the region.</p>
+
+      <p style="font-size: 17px; line-height: 1.75; color: #26251F; margin: 0 0 26px; text-wrap: pretty;">I hold a Bachelor's degree in Metallurgical and Materials Engineering from the University of Nigeria, Nsukka, and I'm currently pursuing a Postgraduate Diploma in Management at Godfrey Okoye University. Alongside my work, I've developed expertise in financial modelling, financial analysis, and business valuation — disciplines that strengthen my approach to strategy, investment, and decision-making.</p>
+
+      <p style="font-size: 17px; line-height: 1.75; color: #26251F; margin: 0 0 26px; text-wrap: pretty;">I've been a competitive debater for more than a decade, winning numerous honours as both a debater and adjudicator. Debate taught me to think critically, communicate clearly, and approach ideas with curiosity rather than certainty.</p>
+
+      <p style="font-size: 17px; line-height: 1.75; color: #1C1B18; margin: 0 0 26px; text-wrap: pretty;">The question that underpins much of my work is: <span style="font-style: italic;">How can we advance thought in a way that creates lasting value for society?</span></p>
+
+      <p style="font-size: 17px; line-height: 1.75; color: #26251F; margin: 0 0 26px; text-wrap: pretty;">I don't think ideas matter simply because they're new. They matter when they help us better understand the world, solve meaningful problems, or create opportunities for others. My work is about turning those ideas into practical impact through disciplined execution.</p>
+
+      <p style="font-size: 17px; line-height: 1.75; color: #26251F; margin: 0 0 44px; text-wrap: pretty;">This website brings together the projects I've worked on, the ideas I'm exploring, and the lessons I've learned along the way. I hope it offers a useful window into both my work and how I approach it.</p>
+
+      <p style="font-size: 17px; line-height: 1.75; color: #26251F; margin: 0;">You can find me on <a href="https://x.com/topboyrayy" target="_blank" rel="noopener" style="text-decoration: underline; text-decoration-color: #C4C0B6; text-underline-offset: 3px;">X</a>, <a href="https://www.instagram.com/topboyrayy/" target="_blank" rel="noopener" style="text-decoration: underline; text-decoration-color: #C4C0B6; text-underline-offset: 3px;">Instagram</a>, <a href="https://www.linkedin.com/in/raymondchuma/" target="_blank" rel="noopener" style="text-decoration: underline; text-decoration-color: #C4C0B6; text-underline-offset: 3px;">LinkedIn</a>, or reach me via <a href="mailto:hi@raymondchuma.com" style="text-decoration: underline; text-decoration-color: #C4C0B6; text-underline-offset: 3px;">email</a>.</p>
+    </main>
+
+    <!-- footer -->
+    <footer style="margin-top: 64px; padding-top: 32px; border-top: 1px solid #EAE6DC; display: flex; justify-content: space-between; align-items: baseline; gap: 20px; flex-wrap: wrap;">
+      <span style="font-size: 14px; color: #A6A299;">© 2026 Raymond Chuma-Onwuoku · Enugu, Nigeria</span>
+      <span style="display: flex; gap: 18px; font-size: 15px; color: #6B6760;">
+        <a href="mailto:hi@raymondchuma.com">Email</a>
+        <a href="https://www.linkedin.com/in/raymondchuma/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://x.com/topboyrayy" target="_blank" rel="noopener">X</a>
+        <a href="https://www.instagram.com/topboyrayy/" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://raymond.wtf" target="_blank" rel="noopener">Blog</a>
+        <a href="https://raymond.wtf/feed" target="_blank" rel="noopener">RSS</a>
+      </span>
+    </footer>
+
+  </div>
+</div>
+
+<!-- résumé request modal -->
+<div id="resume-modal" class="rc-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="resume-modal-title">
+  <div class="rc-modal">
+    <button type="button" class="rc-modal-close" data-resume-close aria-label="Close">×</button>
+
+    <div data-resume-step="form">
+      <h2 id="resume-modal-title">Interested in my résumé?</h2>
+      <p style="font-size: 15px; line-height: 1.6; color: #6B6760; margin: 0 0 22px;">Tell me a little about yourself and what you're working on, and I'll send over the latest version.</p>
+      <form id="resume-form" novalidate>
+        <div class="rc-field">
+          <label for="rf-name">Name</label>
+          <input id="rf-name" class="rc-input" type="text" name="name" autocomplete="name" placeholder="Your name">
+        </div>
+        <div class="rc-field">
+          <label for="rf-org">Company</label>
+          <input id="rf-org" class="rc-input" type="text" name="org" autocomplete="organization" placeholder="Where you're reaching out from">
+        </div>
+        <div class="rc-field">
+          <label for="rf-email">Email</label>
+          <input id="rf-email" class="rc-input" type="email" name="email" autocomplete="email" placeholder="you@example.com">
+        </div>
+        <div class="rc-field">
+          <label for="rf-reason">Why do you need my résumé?</label>
+          <textarea id="rf-reason" class="rc-input" name="reason" placeholder="A sentence or two is perfect."></textarea>
+        </div>
+        <div id="rf-error" role="alert" style="display: none; color: #9A3B2F; font-size: 13px; margin: -4px 0 14px;"></div>
+        <button type="submit" class="rc-btn">Send request</button>
+      </form>
+    </div>
+
+    <div data-resume-step="done" hidden style="text-align: center; padding: 6px 0 2px;">
+      <div style="width: 46px; height: 46px; border-radius: 50%; background: #1C1B18; color: #FBFAF6; display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 4px auto 18px;">✓</div>
+      <h2 style="text-align: center;">Thanks for your request</h2>
+      <p style="font-size: 15px; line-height: 1.6; color: #6B6760; margin: 0 auto 18px; max-width: 340px;">I review each request personally and will send over my résumé if it's relevant.</p>
+      <p style="font-size: 14px; line-height: 1.6; color: #6B6760; margin: 0 auto 22px; max-width: 340px;">If it's urgent, you can also message me on <a href="https://www.linkedin.com/in/raymondchuma/" target="_blank" rel="noopener" style="text-decoration: underline; text-decoration-color: #C4C0B6; text-underline-offset: 3px;">LinkedIn</a>.</p>
+      <button type="button" class="rc-btn" data-resume-close>Done</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  (function () {
+    var views = {
+      home: document.querySelector('[data-view="home"]'),
+      about: document.querySelector('[data-view="about"]')
+    };
+
+    var navLinks = document.querySelectorAll('#nav-links a[data-nav]');
+
+    function updateNav(view) {
+      navLinks.forEach(function (a) {
+        var active = a.getAttribute('data-nav') === view;
+        a.classList.toggle('active', active);
+        if (active) {
+          a.setAttribute('aria-current', 'page');
+        } else {
+          a.removeAttribute('aria-current');
+        }
+      });
+    }
+
+    function setView(view) {
+      if (!views[view]) return;
+      views.home.hidden = view !== 'home';
+      views.about.hidden = view !== 'about';
+      updateNav(view);
+      // re-trigger the entrance animation
+      var el = views[view];
+      el.style.animation = 'none';
+      // force reflow
+      void el.offsetWidth;
+      el.style.animation = 'rc-rise 0.5s ease both';
+      if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // brief press feedback for links that don't lead anywhere yet
+    function pressFeedback(el) {
+      el.style.transition = 'opacity 0.12s ease';
+      el.style.opacity = '0.45';
+      setTimeout(function () { el.style.opacity = ''; }, 120);
+    }
+
+    document.addEventListener('click', function (e) {
+      var link = e.target.closest('[data-nav]');
+      if (!link) return;
+      var nav = link.getAttribute('data-nav');
+      e.preventDefault();
+      if (nav === 'stay') { pressFeedback(link); return; }
+      setView(nav);
+    });
+
+    // reflect the initial view in the nav
+    updateNav('home');
+
+    // Live Enugu (Africa/Lagos) clock
+    var timeEl = document.getElementById('enugu-time');
+    function fmtEnugu() {
+      try {
+        return new Intl.DateTimeFormat('en-US', {
+          timeZone: 'Africa/Lagos',
+          hour: 'numeric', minute: '2-digit', hour12: true
+        }).format(new Date());
+      } catch (err) {
+        return '';
+      }
+    }
+    function tick() { if (timeEl) timeEl.textContent = fmtEnugu(); }
+    tick();
+    setInterval(tick, 15000);
+
+    // ---- résumé request modal ----
+    var modal = document.getElementById('resume-modal');
+    var resumeForm = document.getElementById('resume-form');
+    var errEl = document.getElementById('rf-error');
+    var lastFocused = null;
+
+    function showStep(step) {
+      if (!modal) return;
+      modal.querySelectorAll('[data-resume-step]').forEach(function (s) {
+        s.hidden = s.getAttribute('data-resume-step') !== step;
+      });
+    }
+
+    function openResume() {
+      if (!modal) return;
+      lastFocused = document.activeElement;
+      if (resumeForm) resumeForm.reset();
+      if (errEl) errEl.style.display = 'none';
+      showStep('form');
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+      var first = document.getElementById('rf-name');
+      if (first) first.focus();
+    }
+
+    function closeResume() {
+      if (!modal) return;
+      modal.hidden = true;
+      document.body.style.overflow = '';
+      if (lastFocused && lastFocused.focus) lastFocused.focus();
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('[data-resume]')) { e.preventDefault(); openResume(); return; }
+      if (e.target.closest('[data-resume-close]')) { e.preventDefault(); closeResume(); return; }
+      if (modal && !modal.hidden && e.target === modal) { closeResume(); } // click on backdrop
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal && !modal.hidden) closeResume();
+    });
+
+    if (resumeForm) {
+      resumeForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var name = document.getElementById('rf-name').value.trim();
+        var org = document.getElementById('rf-org').value.trim();
+        var email = document.getElementById('rf-email').value.trim();
+        var reason = document.getElementById('rf-reason').value.trim();
+        var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+        var msg = '';
+        if (!name) msg = 'Please add your name.';
+        else if (!org) msg = 'Please add your company.';
+        else if (!emailOk) msg = 'Please enter a valid email address.';
+        else if (!reason) msg = 'Please add a short reason.';
+
+        if (msg) {
+          errEl.textContent = msg;
+          errEl.style.display = 'block';
+          return;
+        }
+        errEl.style.display = 'none';
+
+        var submitBtn = resumeForm.querySelector('.rc-btn');
+        var origLabel = submitBtn ? submitBtn.textContent : '';
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Sending…';
+          submitBtn.style.opacity = '0.7';
+          submitBtn.style.cursor = 'default';
+        }
+
+        // Send the request to the server, which emails it directly to Raymond.
+        fetch('/api/resume-request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name, org: org, email: email, reason: reason })
+        })
+          .then(function (r) {
+            return r.json().catch(function () { return {}; }).then(function (d) {
+              return { ok: r.ok, data: d };
+            });
+          })
+          .then(function (res) {
+            if (!res.ok || !res.data || res.data.ok !== true) {
+              throw new Error((res.data && res.data.error) || 'request_failed');
+            }
+            showStep('done');
+          })
+          .catch(function (err) {
+            errEl.textContent = (err && /please/i.test(err.message || ''))
+              ? err.message
+              : 'Something went wrong sending your request. Please try again, or reach me on LinkedIn.';
+            errEl.style.display = 'block';
+          })
+          .finally(function () {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = origLabel;
+              submitBtn.style.opacity = '';
+              submitBtn.style.cursor = '';
+            }
+          });
+      });
+    }
+  })();
+</script>
+</body>
+</html>
