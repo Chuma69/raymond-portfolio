@@ -1,252 +1,66 @@
+// Local development server. Serves the static site and wires the API routes
+// to the shared handlers in lib/, adding local file logging (data/*.jsonl).
+// In production on Vercel these same handlers run as serverless functions
+// under api/ — see vercel.json.
 import express from 'express';
-import nodemailer from 'nodemailer';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { smtpConfigured } from './lib/mailer.js';
+import { processResumeRequest, processContact, processSubscribe, healthInfo } from './lib/api.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 const PORT = process.env.PORT || 4300;
-const TO_EMAIL = process.env.TO_EMAIL || 'hi@raymondchuma.com';
-const FROM_EMAIL = process.env.FROM_EMAIL || process.env.SMTP_USER || TO_EMAIL;
-
-// SMTP is configured entirely through environment variables — no third-party
-// form service. Point these at your own email provider's SMTP server.
-//   SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS  (SMTP_SECURE optional: "true" for 465)
-const smtpConfigured = Boolean(
-  process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS
-);
-
-let transporter = null;
-if (smtpConfigured) {
-  transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: process.env.SMTP_SECURE === 'true' || Number(process.env.SMTP_PORT) === 465,
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-  });
-}
-
-const app = express();
-app.use(express.json({ limit: '32kb' }));
-app.use(express.static(path.join(__dirname, 'public')));
 
 const DATA_DIR = path.join(__dirname, 'data');
 const LOG_FILE = path.join(DATA_DIR, 'requests.jsonl');
 const CONTACT_LOG = path.join(DATA_DIR, 'contact.jsonl');
 const SUBSCRIBER_LOG = path.join(DATA_DIR, 'subscribers.jsonl');
 
-function clean(v, max) {
-  return String(v == null ? '' : v).replace(/[\r\n]+/g, ' ').trim().slice(0, max);
+function appendJson(file, record) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+  fs.appendFileSync(file, JSON.stringify(record) + '\n');
 }
-// Like clean() but preserves line breaks (for free-text message bodies).
-function cleanMulti(v, max) {
-  return String(v == null ? '' : v).replace(/\r/g, '').trim().slice(0, max);
+function subscriberExists(email) {
+  if (!fs.existsSync(SUBSCRIBER_LOG)) return false;
+  return fs
+    .readFileSync(SUBSCRIBER_LOG, 'utf8')
+    .split('\n')
+    .filter(Boolean)
+    .some((line) => {
+      try { return JSON.parse(line).email.toLowerCase() === email.toLowerCase(); } catch { return false; }
+    });
 }
-const emailOk = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
-const esc = (s) =>
-  String(s).replace(/[&<>"']/g, (c) =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])
-  );
+
+const app = express();
+app.use(express.json({ limit: '32kb' }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/api/resume-request', async (req, res) => {
-  const body = req.body || {};
-  const name = clean(body.name, 120);
-  const org = clean(body.org, 160);
-  const email = clean(body.email, 200);
-  const reason = clean(body.reason, 2000);
-
-  if (!name) return res.status(400).json({ ok: false, error: 'Please add your name.' });
-  if (!org) return res.status(400).json({ ok: false, error: 'Please add your company.' });
-  if (!emailOk(email))
-    return res.status(400).json({ ok: false, error: 'Please enter a valid email address.' });
-  if (!reason) return res.status(400).json({ ok: false, error: 'Please add a short reason.' });
-
-  const receivedAt = new Date().toISOString();
-  const record = { receivedAt, name, org, email, reason };
-
-  // Always keep a local record so no request is ever lost.
-  try {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-    fs.appendFileSync(LOG_FILE, JSON.stringify(record) + '\n');
-  } catch (err) {
-    console.error('Failed to write request log:', err.message);
-  }
-
-  const subject = `Résumé request — ${name}${org ? ` (${org})` : ''}`;
-  const text =
-    `New résumé request from your website:\n\n` +
-    `Name: ${name}\n` +
-    `Company: ${org}\n` +
-    `Email: ${email}\n\n` +
-    `Why they need it:\n${reason}\n\n` +
-    `Received: ${receivedAt}\n\n` +
-    `Reply directly to this email to reach ${name}.`;
-  const html =
-    `<div style="font-family:system-ui,sans-serif;font-size:15px;line-height:1.6;color:#26251F;">` +
-    `<h2 style="margin:0 0 12px;font-size:18px;">New résumé request</h2>` +
-    `<p style="margin:0 0 4px;"><strong>Name:</strong> ${esc(name)}</p>` +
-    `<p style="margin:0 0 4px;"><strong>Company:</strong> ${esc(org)}</p>` +
-    `<p style="margin:0 0 12px;"><strong>Email:</strong> <a href="mailto:${esc(email)}">${esc(email)}</a></p>` +
-    `<p style="margin:0 0 4px;"><strong>Why they need it:</strong></p>` +
-    `<p style="margin:0 0 16px;white-space:pre-wrap;">${esc(reason)}</p>` +
-    `<p style="margin:0;color:#6B6760;font-size:13px;">Received ${esc(receivedAt)} · reply to this email to reach them.</p>` +
-    `</div>`;
-
-  if (!transporter) {
-    // SMTP not configured yet: the request is safely logged to data/requests.jsonl.
-    console.warn(
-      '[resume-request] SMTP not configured — logged to data/requests.jsonl instead of emailing.\n' +
-        JSON.stringify(record, null, 2)
-    );
-    return res.json({ ok: true, delivery: 'logged' });
-  }
-
-  try {
-    await transporter.sendMail({
-      from: `"Résumé requests" <${FROM_EMAIL}>`,
-      to: TO_EMAIL,
-      replyTo: `"${name}" <${email}>`,
-      subject,
-      text,
-      html,
-    });
-    return res.json({ ok: true, delivery: 'email' });
-  } catch (err) {
-    console.error('[resume-request] email send failed:', err.message);
-    // The request is still saved locally, so surface a soft failure to the client.
-    return res.status(502).json({ ok: false, error: 'delivery_failed' });
-  }
+  const { status, body } = await processResumeRequest(req.body || {}, {
+    persist: (rec) => appendJson(LOG_FILE, rec),
+  });
+  res.status(status).json(body);
 });
 
 app.post('/api/contact', async (req, res) => {
-  const body = req.body || {};
-  const name = clean(body.name, 120);
-  const email = clean(body.email, 200);
-  const org = clean(body.org, 160);
-  const topic = clean(body.topic, 120);
-  const source = clean(body.source, 120);
-  const message = cleanMulti(body.message, 4000);
-
-  if (!name) return res.status(400).json({ ok: false, error: 'Please add your name.' });
-  if (!emailOk(email))
-    return res.status(400).json({ ok: false, error: 'Please enter a valid email address.' });
-  if (!topic)
-    return res.status(400).json({ ok: false, error: 'Please choose what you’re reaching out about.' });
-  if (!message) return res.status(400).json({ ok: false, error: 'Please add a short message.' });
-
-  const receivedAt = new Date().toISOString();
-  const record = { receivedAt, name, email, org, topic, source, message };
-
-  try {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-    fs.appendFileSync(CONTACT_LOG, JSON.stringify(record) + '\n');
-  } catch (err) {
-    console.error('Failed to write contact log:', err.message);
-  }
-
-  const subject = `New message — ${topic} — ${name}`;
-  const text =
-    `New contact message from your website:\n\n` +
-    `Name: ${name}\n` +
-    `Email: ${email}\n` +
-    `Organization: ${org || '—'}\n` +
-    `About: ${topic}\n` +
-    `How they found you: ${source || '—'}\n\n` +
-    `Message:\n${message}\n\n` +
-    `Received: ${receivedAt}\n` +
-    `Reply directly to this email to reach ${name}.`;
-  const html =
-    `<div style="font-family:system-ui,sans-serif;font-size:15px;line-height:1.6;color:#26251F;">` +
-    `<h2 style="margin:0 0 12px;font-size:18px;">New contact message</h2>` +
-    `<p style="margin:0 0 4px;"><strong>Name:</strong> ${esc(name)}</p>` +
-    `<p style="margin:0 0 4px;"><strong>Email:</strong> <a href="mailto:${esc(email)}">${esc(email)}</a></p>` +
-    `<p style="margin:0 0 4px;"><strong>Organization:</strong> ${esc(org || '—')}</p>` +
-    `<p style="margin:0 0 4px;"><strong>About:</strong> ${esc(topic)}</p>` +
-    `<p style="margin:0 0 12px;"><strong>How they found you:</strong> ${esc(source || '—')}</p>` +
-    `<p style="margin:0 0 4px;"><strong>Message:</strong></p>` +
-    `<p style="margin:0 0 16px;white-space:pre-wrap;">${esc(message)}</p>` +
-    `<p style="margin:0;color:#6B6760;font-size:13px;">Received ${esc(receivedAt)} · reply to this email to reach them.</p>` +
-    `</div>`;
-
-  if (!transporter) {
-    console.warn(
-      '[contact] SMTP not configured — logged to data/contact.jsonl instead of emailing.\n' +
-        JSON.stringify(record, null, 2)
-    );
-    return res.json({ ok: true, delivery: 'logged' });
-  }
-
-  try {
-    await transporter.sendMail({
-      from: `"Website contact" <${FROM_EMAIL}>`,
-      to: TO_EMAIL,
-      replyTo: `"${name}" <${email}>`,
-      subject,
-      text,
-      html,
-    });
-    return res.json({ ok: true, delivery: 'email' });
-  } catch (err) {
-    console.error('[contact] email send failed:', err.message);
-    return res.status(502).json({ ok: false, error: 'delivery_failed' });
-  }
+  const { status, body } = await processContact(req.body || {}, {
+    persist: (rec) => appendJson(CONTACT_LOG, rec),
+  });
+  res.status(status).json(body);
 });
 
 app.post('/api/subscribe', async (req, res) => {
-  const email = clean((req.body || {}).email, 200);
-  if (!emailOk(email))
-    return res.status(400).json({ ok: false, error: 'Please enter a valid email address.' });
-
-  const receivedAt = new Date().toISOString();
-
-  // De-dupe against existing subscribers so repeat sign-ups aren't logged twice.
-  try {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-    if (fs.existsSync(SUBSCRIBER_LOG)) {
-      const already = fs
-        .readFileSync(SUBSCRIBER_LOG, 'utf8')
-        .split('\n')
-        .filter(Boolean)
-        .some((line) => {
-          try {
-            return JSON.parse(line).email.toLowerCase() === email.toLowerCase();
-          } catch {
-            return false;
-          }
-        });
-      if (already) return res.json({ ok: true, already: true });
-    }
-    fs.appendFileSync(SUBSCRIBER_LOG, JSON.stringify({ receivedAt, email }) + '\n');
-  } catch (err) {
-    console.error('Failed to write subscriber log:', err.message);
-  }
-
-  if (transporter) {
-    try {
-      await transporter.sendMail({
-        from: `"Newsletter signups" <${FROM_EMAIL}>`,
-        to: TO_EMAIL,
-        replyTo: email,
-        subject: `New newsletter subscriber — ${email}`,
-        text: `New newsletter subscriber:\n\n${email}\n\nReceived: ${receivedAt}`,
-      });
-    } catch (err) {
-      // The subscriber is already saved locally, so a failed notice is non-fatal.
-      console.error('[subscribe] notification email failed:', err.message);
-    }
-  } else {
-    console.warn(`[subscribe] new subscriber logged to data/subscribers.jsonl: ${email}`);
-  }
-
-  return res.json({ ok: true });
+  const { status, body } = await processSubscribe(req.body || {}, {
+    isDuplicate: subscriberExists,
+    persist: (rec) => appendJson(SUBSCRIBER_LOG, rec),
+  });
+  res.status(status).json(body);
 });
 
-app.get('/api/health', (_req, res) =>
-  res.json({ ok: true, smtp: smtpConfigured ? 'configured' : 'not-configured' })
-);
+app.get('/api/health', (_req, res) => res.json(healthInfo()));
 
 app.listen(PORT, () => {
   console.log(`Portfolio running on http://localhost:${PORT}`);
-  console.log(`SMTP: ${smtpConfigured ? 'configured' : 'NOT configured (requests will be logged to data/requests.jsonl)'}`);
+  console.log(`SMTP: ${smtpConfigured ? 'configured' : 'NOT configured (requests will be logged to data/*.jsonl)'}`);
 });
