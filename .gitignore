@@ -2,3 +2,7 @@ node_modules/
 .env
 data/*.jsonl
 .vercel
+
+# Sanity Studio build artifacts
+sanity/dist/
+sanity/.sanity/
