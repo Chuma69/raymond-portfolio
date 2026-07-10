@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Raymond Chuma-Onwuoku">
+  <rect width="256" height="256" fill="#F5F1E6"/>
+  <text x="44" y="171" font-family="Georgia, 'Times New Roman', Times, serif" font-size="142" font-weight="500" fill="#1C1B18">R</text>
+  <g stroke="#C9A44C" stroke-width="2.4" stroke-linecap="round" fill="none">
+    <line x1="128" y1="128" x2="238" y2="92"/>
+    <line x1="128" y1="128" x2="238" y2="110"/>
+    <line x1="128" y1="128" x2="238" y2="128"/>
+    <line x1="128" y1="128" x2="238" y2="146"/>
+    <line x1="128" y1="128" x2="238" y2="164"/>
+  </g>
+</svg>
