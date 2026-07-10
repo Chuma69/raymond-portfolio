@@ -58,7 +58,7 @@ emailed to you.
 | ---------------------- | ------------------------------------------ |
 | `POST /api/resume-request` | Résumé request (name, company, email, reason) |
 | `POST /api/contact`        | Contact message (name, email, org, topic, source, message) |
-| `POST /api/subscribe`      | Newsletter signup (email)                  |
+| `POST /api/subscribe`      | Optional first-party signup capture (unused; live newsletter uses the Substack embed) |
 | `GET  /api/health`         | Reports SMTP configuration status          |
 
 Each validates input, emails `TO_EMAIL` with `replyTo` set to the sender, and

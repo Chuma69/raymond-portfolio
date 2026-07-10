@@ -245,12 +245,11 @@
       <!-- newsletter -->
       <section style="margin-top: 56px; padding-top: 40px; border-top: 1px solid #EAE6DC;">
         <h2 style="font-size: 14px; font-weight: 500; letter-spacing: 0.02em; color: #9A968D; margin: 0 0 12px;">Newsletter</h2>
-        <p style="font-size: 16px; line-height: 1.7; color: #26251F; margin: 0 0 20px; max-width: 56ch; text-wrap: pretty;">Once a month I send a short, personal letter — sometimes about the ideas I'm working through, like operations, systems, and the craft of building things that last, and sometimes just a random story from my life. No noise, no filler, and you can step away whenever you like.</p>
-        <form id="newsletter-form" class="rc-news" novalidate>
-          <input id="nl-email" type="email" name="email" autocomplete="email" placeholder="Enter your email" aria-label="Email address">
-          <button type="submit">Subscribe</button>
-        </form>
-        <p id="nl-msg" role="status" style="display: none; font-size: 13px; margin: 12px 2px 0;"></p>
+        <p style="font-size: 16px; line-height: 1.75; color: #26251F; margin: 0 0 24px; text-wrap: pretty;">I write one email each month. It's about something I've been thinking about, building, or learning. Sometimes it's a story from my life. My hope is that each one leaves you with an idea worth keeping. If it ever stops being useful, you can unsubscribe at any time.</p>
+
+        <!-- Branded Subscribe button — a plain link to the Substack signup page.
+             Swap the href to migrate providers without changing anything else. -->
+        <a id="newsletter-subscribe" class="rc-btn" href="https://raybyray.substack.com/subscribe" target="_blank" rel="noopener" style="width: auto; min-width: 150px; padding: 13px 30px; border-radius: 999px; text-align: center;">Subscribe</a>
       </section>
     </main>
 
@@ -823,65 +822,8 @@
       });
     }
 
-    // ---- newsletter signup ----
-    var newsletterForm = document.getElementById('newsletter-form');
-    if (newsletterForm) {
-      var nlMsg = document.getElementById('nl-msg');
-      var nlInput = document.getElementById('nl-email');
-      var nlBtn = newsletterForm.querySelector('button');
-
-      function setNlMsg(text, ok) {
-        nlMsg.textContent = text;
-        nlMsg.style.color = ok ? '#5B7A5B' : '#9A3B2F';
-        nlMsg.style.display = 'block';
-      }
-
-      newsletterForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        var email = nlInput.value.trim();
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-          setNlMsg('Please enter a valid email address.', false);
-          return;
-        }
-        nlMsg.style.display = 'none';
-        var orig = nlBtn.textContent;
-        nlBtn.disabled = true;
-        nlBtn.textContent = 'Subscribing…';
-
-        fetch('/api/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email })
-        })
-          .then(function (r) {
-            return r.json().catch(function () { return {}; }).then(function (d) {
-              return { ok: r.ok, data: d };
-            });
-          })
-          .then(function (res) {
-            if (!res.ok || !res.data || res.data.ok !== true) {
-              throw new Error((res.data && res.data.error) || 'request_failed');
-            }
-            newsletterForm.style.display = 'none';
-            setNlMsg(
-              res.data.already
-                ? "You're already on the list — thank you."
-                : "You're in. Look out for the next letter.",
-              true
-            );
-          })
-          .catch(function (err) {
-            setNlMsg(
-              (err && /please/i.test(err.message || ''))
-                ? err.message
-                : 'Something went wrong. Please try again in a moment.',
-              false
-            );
-            nlBtn.disabled = false;
-            nlBtn.textContent = orig;
-          });
-      });
-    }
+    // Newsletter: the Subscribe button is a plain link to the Substack signup
+    // page (see the Newsletter section) — no client JS needed.
   })();
 </script>
 </body>
