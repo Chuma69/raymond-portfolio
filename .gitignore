@@ -6,3 +6,4 @@ data/*.jsonl
 # Sanity Studio build artifacts
 sanity/dist/
 sanity/.sanity/
+.env*
