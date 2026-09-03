@@ -1,10 +1,10 @@
 import {defineType, defineField} from 'sanity'
 
-// A reusable skill/category. Projects reference these, and the Portfolio page
-// uses the set of skills as its filter options.
+// A reusable category. Projects reference these, and the Portfolio page uses
+// the set of categories as its filter options.
 export default defineType({
-  name: 'skill',
-  title: 'Skill',
+  name: 'category',
+  title: 'Category',
   type: 'document',
   fields: [
     defineField({

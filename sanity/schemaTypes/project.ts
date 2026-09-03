@@ -22,11 +22,19 @@ export default defineType({
       validation: (r) => r.required(),
     }),
     defineField({
+      name: 'categories',
+      title: 'Categories',
+      type: 'array',
+      of: [{type: 'reference', to: [{type: 'category'}]}],
+      description: 'Reusable category tags shown on the cards and used for filtering on the Portfolio page.',
+    }),
+    defineField({
       name: 'skills',
       title: 'Skills',
       type: 'array',
-      of: [{type: 'reference', to: [{type: 'skill'}]}],
-      description: 'Reusable skill tags shown on the cards and used for filtering on the Portfolio page.',
+      of: [{type: 'string'}],
+      options: {layout: 'tags'},
+      description: 'Optional — the granular skills applied on this project (e.g. SEO, Content Strategy). Shown on the case-study page.',
     }),
     defineField({
       name: 'year',
