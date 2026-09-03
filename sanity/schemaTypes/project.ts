@@ -22,10 +22,11 @@ export default defineType({
       validation: (r) => r.required(),
     }),
     defineField({
-      name: 'role',
-      title: 'Role',
-      type: 'string',
-      description: 'e.g. Founder, Programs, Operations',
+      name: 'skills',
+      title: 'Skills',
+      type: 'array',
+      of: [{type: 'reference', to: [{type: 'skill'}]}],
+      description: 'Reusable skill tags shown on the cards and used for filtering on the Portfolio page.',
     }),
     defineField({
       name: 'year',
@@ -97,5 +98,5 @@ export default defineType({
     }),
   ],
   orderings: [{title: 'Order', name: 'orderAsc', by: [{field: 'order', direction: 'asc'}]}],
-  preview: {select: {title: 'title', subtitle: 'role'}},
+  preview: {select: {title: 'title', subtitle: 'year'}},
 })

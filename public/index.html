@@ -303,6 +303,8 @@
 
       <p style="font-size: 16px; line-height: 1.75; color: #26251F; margin: 0 0 8px; max-width: 60ch; text-wrap: pretty;">Organizations, products, programs, and communities I've had a hand in.</p>
 
+      <div id="projects-filter" style="display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 4px;"></div>
+
       <div id="projects-list" style="display: flex; flex-direction: column;">
 
         <article style="padding: 32px 0; border-top: 1px solid #EAE6DC;">
@@ -882,7 +884,7 @@
       try { return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }); }
       catch (e) { return ''; }
     }
-    function metaLine(p) { return [p.role, p.year].filter(Boolean).join(' · '); }
+    function metaLine(p) { return (p.skills || []).join(' · '); }
 
     function sanityFetch(query) {
       var url = 'https://' + SANITY.projectId + '.apicdn.sanity.io/v' + SANITY.apiVersion +
@@ -892,24 +894,61 @@
 
     // ---- renderers (match the hardcoded markup) ----
     function projectCardHTML(p) {
+      var skills = metaLine(p);
+      var skillsHTML = skills ? '<div style="font-size: 13px; color: #A6A299; margin-top: 6px;">' + esc(skills) + '</div>' : '';
+      var summaryHTML = p.summary ? '<p style="font-size: 15px; line-height: 1.7; color: #6B6760; margin: 10px 0 0; max-width: 62ch; text-wrap: pretty;">' + esc(p.summary) + '</p>' : '';
       return '<a href="#" data-case="' + esc(p.slug) + '" style="display: block; padding: 26px 0; border-bottom: 1px solid #EAE6DC;">' +
-        '<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 16px;">' +
         '<span style="font-size: 20px; color: #1C1B18;">' + esc(p.title) + '</span>' +
-        '<span style="font-size: 13px; color: #A6A299; white-space: nowrap;">' + esc(metaLine(p)) + '</span></div>' +
-        '<p style="font-size: 15px; line-height: 1.7; color: #6B6760; margin: 8px 0 0; max-width: 62ch; text-wrap: pretty;">' + esc(p.summary) + '</p>' +
+        skillsHTML + summaryHTML +
         '<span style="display: inline-block; margin-top: 12px; font-size: 14px; color: #1C1B18; text-decoration: underline; text-decoration-color: #C4C0B6; text-underline-offset: 3px;">Read case study →</span></a>';
     }
     function projectArticleHTML(p) {
       var live = p.url ? '<a href="' + esc(p.url) + '" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 4px; font-size: 14px; color: #1C1B18; text-decoration: underline; text-decoration-color: #C4C0B6; text-underline-offset: 3px;">View live site <span style="font-size: 11px; color: #A6A299;">↗</span></a>' : '';
-      return '<article style="padding: 32px 0; border-top: 1px solid #EAE6DC;">' +
-        '<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 16px;">' +
+      var skills = metaLine(p);
+      var skillsHTML = skills ? '<div style="font-size: 13px; color: #A6A299; margin-top: 6px;">' + esc(skills) + '</div>' : '';
+      var summaryHTML = p.summary ? '<p style="font-size: 16px; line-height: 1.7; color: #6B6760; margin: 12px 0 0; max-width: 60ch; text-wrap: pretty;">' + esc(p.summary) + '</p>' : '';
+      return '<article data-skills="' + esc((p.skills || []).join('|')) + '" style="padding: 32px 0; border-top: 1px solid #EAE6DC;">' +
         '<h2 style="font-size: 21px; font-weight: 600; color: #1C1B18; margin: 0;">' + esc(p.title) + '</h2>' +
-        '<span style="font-size: 13px; color: #A6A299; white-space: nowrap;">' + esc(metaLine(p)) + '</span></div>' +
-        '<p style="font-size: 16px; line-height: 1.7; color: #6B6760; margin: 12px 0 0; max-width: 60ch; text-wrap: pretty;">' + esc(p.summary) + '</p>' +
+        skillsHTML + summaryHTML +
         '<div style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: 14px;">' +
         '<a href="#" data-case="' + esc(p.slug) + '" style="font-size: 14px; color: #1C1B18; text-decoration: underline; text-decoration-color: #C4C0B6; text-underline-offset: 3px;">Read case study →</a>' +
         live + '</div></article>';
     }
+
+    // ---- Portfolio-page skill filter ----
+    var activeSkill = 'All';
+    function filterChipHTML(name, active) {
+      var base = 'font-size: 13px; padding: 6px 14px; border-radius: 100px; cursor: pointer; transition: background .15s, color .15s, border-color .15s;';
+      var style = active
+        ? 'background: #1C1B18; color: #FBFAF6; border: 1px solid #1C1B18;'
+        : 'background: transparent; color: #6B6760; border: 1px solid #E2DED4;';
+      return '<button type="button" data-skill="' + esc(name) + '" style="' + base + style + '">' + esc(name) + '</button>';
+    }
+    function renderProjectFilter(names) {
+      var el = document.getElementById('projects-filter');
+      if (!el) return;
+      el.innerHTML = ['All'].concat(names || []).map(function (n) { return filterChipHTML(n, n === activeSkill); }).join('');
+    }
+    function applyProjectFilter(name) {
+      activeSkill = name;
+      var list = document.getElementById('projects-list');
+      if (list) Array.prototype.forEach.call(list.querySelectorAll('[data-skills]'), function (art) {
+        var skills = (art.getAttribute('data-skills') || '').split('|');
+        art.style.display = (name === 'All' || skills.indexOf(name) !== -1) ? '' : 'none';
+      });
+      var el = document.getElementById('projects-filter');
+      if (el) Array.prototype.forEach.call(el.querySelectorAll('[data-skill]'), function (b) {
+        var on = b.getAttribute('data-skill') === name;
+        b.style.background = on ? '#1C1B18' : 'transparent';
+        b.style.color = on ? '#FBFAF6' : '#6B6760';
+        b.style.borderColor = on ? '#1C1B18' : '#E2DED4';
+      });
+    }
+    document.addEventListener('click', function (e) {
+      var chip = e.target.closest('#projects-filter [data-skill]');
+      if (chip) { e.preventDefault(); applyProjectFilter(chip.getAttribute('data-skill')); }
+    });
+
     function bookRowHTML(b) {
       return '<div style="display: flex; justify-content: space-between; gap: 20px; align-items: baseline;">' +
         '<span style="font-size: 17px; color: #26251F;"><span style="font-style: italic;">' + esc(b.title) + '</span> &nbsp;·&nbsp; ' + esc(b.author) + '</span>' +
@@ -957,7 +996,7 @@
 
     // ---- load content ----
     if (SANITY.projectId) {
-      sanityFetch('*[_type=="project"]|order(order asc){title,"slug":slug.current,role,year,summary,description,"url":liveUrl,body}')
+      sanityFetch('*[_type=="project"]|order(order asc){title,"slug":slug.current,"skills":skills[]->title,year,summary,description,"url":liveUrl,body}')
         .then(function (projects) {
           if (!projects || !projects.length) return;
           Object.keys(caseData).forEach(function (k) { delete caseData[k]; });
@@ -968,9 +1007,15 @@
           if (home) home.innerHTML = projects.slice(0, 3).map(projectCardHTML).join('');
           var list = document.getElementById('projects-list');
           if (list) list.innerHTML = projects.map(projectArticleHTML).join('');
+          applyProjectFilter(activeSkill);
           if (location.pathname.indexOf('/projects/') === 0) routeFromPath(location.pathname);
         })
         .catch(function (e) { console.warn('[sanity] projects failed:', e); });
+
+      // Portfolio-page skill filter — options come from the reusable skill docs.
+      sanityFetch('*[_type=="skill"]|order(order asc){title}')
+        .then(function (skills) { renderProjectFilter((skills || []).map(function (s) { return s.title; })); })
+        .catch(function (e) { console.warn('[sanity] skills failed:', e); });
 
       sanityFetch('*[_type=="book"]|order(order asc){title,author,category}')
         .then(function (books) { if (books && books.length) { var el = document.getElementById('home-reading'); if (el) el.innerHTML = books.map(bookRowHTML).join(''); } })
